@@ -1,0 +1,453 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  9pt,
+  ignorenonframetext,
+]{beamer}
+\usepackage{pgfpages}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamercolor{caption name}{fg=normal text.fg}
+\beamertemplatenavigationsymbolsempty
+% Prevent slide breaks in the middle of a paragraph
+\widowpenalties 1 10000
+\raggedbottom
+\setbeamertemplate{part page}{
+  \centering
+  \begin{beamercolorbox}[sep=16pt,center]{part title}
+    \usebeamerfont{part title}\insertpart\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{section page}{
+  \centering
+  \begin{beamercolorbox}[sep=12pt,center]{part title}
+    \usebeamerfont{section title}\insertsection\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{subsection page}{
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center]{part title}
+    \usebeamerfont{subsection title}\insertsubsection\par
+  \end{beamercolorbox}
+}
+\AtBeginPart{
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \ifbibliography
+  \else
+    \frame{\sectionpage}
+  \fi
+}
+\AtBeginSubsection{
+  \frame{\subsectionpage}
+}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usetheme[]{Pittsburgh}
+\usecolortheme{crane}
+\usefonttheme{structurebold}
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={STA130 Final Project},
+  pdfauthor={Chetanya Saxena (1007320533), Maryam Ansari (1006917204), Raazia Hashim (1006819454) and Suchi Aidasani (1006753229) - Group 132},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\newif\ifbibliography
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{STA130 Final Project}
+\subtitle{Analysing Voter Demographics - Liberal Party}
+\author{Chetanya Saxena (1007320533), Maryam Ansari (1006917204), Raazia
+Hashim (1006819454) and Suchi Aidasani (1006753229) - Group 132}
+\date{December 7, 2020}
+
+\begin{document}
+\frame{\titlepage}
+
+\begin{frame}{Introduction}
+\protect\hypertarget{introduction}{}
+The questions we chose to cover in our final project provide insight to
+the Liberal Party about their current standing in voter opinions. For
+this, we use past data and manipulate it to make predictions. The
+findings of this project will contain information about the gender split
+among the past votes in favor of Liberal Party as well as if Liberal
+Party is the first choice of voters. For the research questions entailed
+in this presentation, we are using the data from the 2019 Online
+Canadian Election survey. We have treated the data we have of 25850
+(after removing missing values) as a sample and the population is all
+the people politically participating in voting; all Canadians over the
+age of 18.
+
+\begin{block}{Data Summary}
+\protect\hypertarget{data-summary}{}
+Each of our research questions involve different variables from the
+Election Survey results. To familiarize the audience with them, their
+descriptions are attached as follows: - \(votechoice\): Which party is
+your first choice to vote for? - \(gender\): Which gender does the voter
+belong to? (e.g.~man, woman or other) - \(bornin\_canada\): Were you
+born in Canada?
+
+The methods for data wrangling that we will be using are filtering,
+grouping and mutating variables.
+\end{block}
+\end{frame}
+
+\begin{frame}{Research Question 1}
+\protect\hypertarget{research-question-1}{}
+\begin{block}{Introduction}
+\protect\hypertarget{introduction-1}{}
+\textbf{What percentage of votes should the Liberal party expect from
+people born in Canada during the election at this point in time?}
+
+The problem explored in this question is the proportion of people who
+would vote for the ``Liberal Party'' as their first choice as opposed to
+the other parties collectively. I have used our sample to try and
+predict a confidence interval for the Liberal party so that they know
+what percentage of vote they should be expecting.
+\end{block}
+
+\begin{block}{Statistical Methods}
+\protect\hypertarget{statistical-methods}{}
+The statistical method we will use to approach our question is
+bootstrapping. Bootstrapping is a method used to estimate the sampling
+distribution of the population of eligible voters in Canada. We draw
+many bootstrap samples of the same size (n = 22146) from the sample that
+we have (in this case 1000 bootstrap samples) with replacement which
+allows our bootstrap sample to have duplicate values. Next, for each
+bootstrap sample, we filtered the data by vote choice of Liberal and by
+people born in canada. We are not creating new data, rather we are
+exploring variability from the original sample to create a range of
+plausible values for the difference in proportions of votes.
+
+This is a confidence interval, we found it by taking the middle 95\% of
+the bootstrap distribution and it tells us that if we repeated this
+procedure many times, 95\% of those times, the proportion of people who
+would vote for the Liberal Party would fall within the 95\% confidence
+interval.
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{block}{Visualization}
+\protect\hypertarget{visualization}{}
+We will visualize the proportion of people who would vote for the
+liberal party as their first choice by creating a histogram which will
+allow us to observe the shape and distribution of the proportions.This
+distribution shows that the values range from around 0.295 to 0.310, and
+the center is around 0.3025. Some extremities can be observed but this
+provides an overview of the number of people who would vote for the
+liberal party.
+\includegraphics{finalproject_files/figure-beamer/unnamed-chunk-5-1.pdf}
+\end{block}
+
+\begin{block}{95\% confidence level}
+\protect\hypertarget{confidence-level}{}
+\begin{verbatim}
+##      2.5%     97.5% 
+## 0.3295821 0.3413709
+\end{verbatim}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\begin{block}{Results}
+\protect\hypertarget{results}{}
+If we repeated this process many times, 95\% of those confidence
+intervals would include the true proportion of people born in Canada who
+would vote for the Liberal party. It is always good to know where you
+stand and identify what needs to be improved, therefore this data is
+useful for the liberal party. This provides a good starting point when
+deciding the approach to this election in that the results of this data
+provides a reason for the liberal party to modify their policies so that
+they can appeal to immigrants and greater demographics so that they
+could increase the proportions of people who would vote for the liberal
+party as their first choice.
+\end{block}
+
+\begin{block}{Conclusion}
+\protect\hypertarget{conclusion}{}
+Moreover, since this is a proportion in comparison to all the parties
+collectively, this data tells the Liberal party that they have an
+unspoken lead in the election because approximately 30\% is a large
+percentage and therefore they should strengthen their weak policies and
+further strengthen their stronger policies and consider different
+strategies to market themselves more to the general voting population.
+\end{block}
+\end{frame}
+
+\begin{frame}{Research Question 2}
+\protect\hypertarget{research-question-2}{}
+\begin{block}{Introduction}
+\protect\hypertarget{introduction-2}{}
+\textbf{Is the proportion of male people who voted for the Liberal Party
+50\%?}
+
+This research question can help determine the gender split among the
+votes, and whether a certain gender preferred the Liberal Party.
+
+Our population for this specific research question would be the people
+that filled out the survey, voted for the Liberal Party and are within
+the ages of 18 and 99 inclusive.
+\end{block}
+\end{frame}
+
+\begin{frame}
+\begin{block}{Visualization}
+\protect\hypertarget{visualization-1}{}
+The data, for all the eligible votes whose first choice vote is for the
+Liberal Party, is seen on the Bar plot below and is divided by gender.
+
+\includegraphics{finalproject_files/figure-beamer/unnamed-chunk-7-1.pdf}
+
+From this data we can already conclude that more women had Liberal Party
+as their first choice for their vote, compared to men.
+\end{block}
+\end{frame}
+
+\begin{frame}
+\begin{block}{Visualization (contd.)}
+\protect\hypertarget{visualization-contd.}{}
+This bar plot was created in steps. First the data was filtered by
+removing missing (or NA) values and then a new data set called
+`liberalvotes' was created which stores all the data for the individuals
+that had listed the Liberal Party as their first choice of vote. The
+reason a bar plot was chosen is because the variable gender has 2
+different categorical levels which makes this plot the most suitable.
+Furthermore, bar plots are more easily interpreted by those who lack
+statistical knowledge.
+\end{block}
+
+\begin{block}{Statistical Methods}
+\protect\hypertarget{statistical-methods-1}{}
+I can test our original research question by carrying out a one-sample
+hypothesis test. Our hypotheses for the test are listed as follows with
+\(H_0\) being the null hypothesis and \(H_1\) being the alternative
+hypothesis, with \emph{p} being the proportion of men.
+\[H_0: p_{male}=0.5\] \[H_1: p_{male} \neq 0.5\]
+\end{block}
+\end{frame}
+
+\begin{frame}
+\begin{block}{Hypothesis Test Stimulation}
+\protect\hypertarget{hypothesis-test-stimulation}{}
+\includegraphics{finalproject_files/figure-beamer/unnamed-chunk-8-1.pdf}
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{block}{Results}
+\protect\hypertarget{results-1}{}
+\begin{verbatim}
+##      2.5%     97.5% 
+## 0.4896578 0.5106766
+\end{verbatim}
+
+Above is the result from a 95\% confidence interval (it is used to
+calculate how confident we are with our data). The results from this
+calculation state that ``We are 95\% confident that between 49\% and
+51.1\% of people that voted for the Liberal party are male''. A narrow
+confidence interval means that there is less variability in our data and
+may explain why there is a large gap between our vertical lines and
+histogram.
+
+\begin{verbatim}
+## [1] 0
+\end{verbatim}
+
+Our histogram visualization is symmetrical, centered at 0.5 (mean
+proportion) and values range between 0.49 and 0.52. We use our test
+statistic and original proportion to find our p-value (the probability
+of obtaining test results in the least extreme scenario, under the null
+hypothesis). In this case, the p-value is 0.
+\end{block}
+
+\begin{block}{Conclusion}
+\protect\hypertarget{conclusion-1}{}
+Since our p-value 0, we have very strong evidence against the null
+hypothesis that the prevalence of males among those whose first choice
+vote was the Liberal Party, is 0.5.
+\end{block}
+\end{frame}
+
+\begin{frame}{Research Question 3}
+\protect\hypertarget{research-question-3}{}
+\begin{block}{Introduction}
+\protect\hypertarget{introduction-3}{}
+\textbf{What is the range of plausible values of the difference in
+median age of Canadians who would vote for the Liberal party verses the
+National Democratic Party as their first choice?}
+
+We will determine whether a Canadian who would vote for the Liberal
+Party, is on average younger or older than a Canadian who would vote for
+the National Democratic Party. This is an important question to answer,
+to determine if voters of the two parties belong to a similar age
+demographic.
+\end{block}
+
+\begin{block}{Data Summary}
+\protect\hypertarget{data-summary-1}{}
+To explore this question, we shall look at Canadians 18 years or older,
+that is who are eligible to vote in the election and who report that
+they will vote for the Liberal Party or the National Democratic Party as
+their first choice, and we will filter our data to only contain this
+subset of observations.
+\end{block}
+\end{frame}
+
+\begin{frame}
+\begin{block}{Visualization}
+\protect\hypertarget{visualization-2}{}
+\includegraphics{finalproject_files/figure-beamer/unnamed-chunk-12-1.pdf}
+
+We will visualize the age of Liberal and the NDP voters by creating two
+box plots, which will give us a way to compare the center and
+distribution of ages for the two groups. The center, that is the median,
+which is the middle values is seen by the position of the line in the
+center of the boxes. We can see that median age of NDP voters is much
+lower than the median of Liberal voters. The distribution of NDP voters
+is very skewed to the right (that is there is a longer right tail),
+meaning that most voters tend to be younger. The distribution of Liberal
+voters is also slightly right skewed, but not as much as the other
+group. Finally, we see there are a few outliers in the NPD voter ages,
+where some voters are a bit older than the rest in the group.
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{block}{Statistical Method}
+\protect\hypertarget{statistical-method}{}
+The statistical method we will be using to answer our question is
+bootstrapping. Bootstrapping is a method used to estimate the sampling
+distribution of the population of eligible voters in Canada. We draw
+many bootstrap samples of the same size (n = 200) from the sample that
+we have (in this case 5000 bootstrap samples) with replacement. Meaning
+that our bootstrap samples may have duplicate values in them. Next, for
+each bootstrap sample, we filtered the data by vote choice, calculated
+the median age and found the difference between the median age of
+Liberal voters and the median age of NDP voters.
+
+Doing this, we are not creating new data, rather we are exploring
+variability from the original sample to create a range of plausible
+values for the difference in median age. This is a confidence interval,
+we found it by taking the middle 80\% of the bootstrap distribution
+(wider and narrower intervals could have been taken). This confidence
+interval tells us that if we repeated this procedure many times, 80\% of
+those times, the true difference in median age would fall inside the
+confidence interval.
+
+\begin{verbatim}
+## 10% 90% 
+##   6  16
+\end{verbatim}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\begin{block}{Results}
+\protect\hypertarget{results-2}{}
+The confidence interval we found through our bootstrap sampling for the
+difference in median age for Liberal and NDP voters in between 6 and 16.
+Since the interval is positive, and recall that we subtracted the median
+age of Liberal voters from the median age of NDP voters, we can conclude
+that on average, NDP voters tend to be younger than Liberal voters.
+\end{block}
+
+\begin{block}{Conclusions}
+\protect\hypertarget{conclusions}{}
+Since this is the case, the Liberal Party should be focusing their
+campaigning efforts and new party policies towards a younger demographic
+of Canadians, as this is something that the National Demographic Party
+is succeeding in. The NDP is able to attract a younger voter base
+through the fresh ideas they propose and the Liberal Party should be
+taking a page out of their book. Finally, some limitations in answering
+this question using the bootstrapping method is that the sample data
+that we begin with may be biased and not fully representative of all
+Canadian voters and since bootstrapping only reuses our sample data, the
+interval we came up with may be biased.
+\end{block}
+\end{frame}
+
+\begin{frame}{Limitations and Summary}
+\protect\hypertarget{limitations-and-summary}{}
+\begin{block}{Limitations}
+\protect\hypertarget{limitations}{}
+Some limitations to this data include the sample data may not be
+completely representative of the population due to bias. In addition to
+this, since samples are randomly drawn, this can lead to some
+uncertainty. Another limitation that cannot be removed is that some of
+the results might be biased due to confounding in variables.
+\end{block}
+
+\begin{block}{Summary}
+\protect\hypertarget{summary}{}
+The findings contained in this project serve to advise the Liberal Party
+on how their campaign can be improved by targeting the right audiences.
+They are as follows:
+
+\begin{itemize}
+\tightlist
+\item
+  The Liberal Party only has 30\% of the population sure about voting
+  for them and they need to improve their campaign generally.
+\item
+  In general, the proportion of men to women in Liberal voters is not
+  50\%. The Liberal Party needs to target their policies towards men.
+\item
+  They also need to target the upcoming new voters more, maybe by easier
+  student loans or similar policies to earn the favor of this age group.
+\end{itemize}
+\end{block}
+\end{frame}
+
+\end{document}

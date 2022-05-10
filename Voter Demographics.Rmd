@@ -1,0 +1,320 @@
+---
+title: "STA130 Final Project"
+author: "Raazia Hashim, Chetanya Saxena, Maryam Ansari and Suchi Aidasani"
+subtitle: "Analysing Voter Demographics - Liberal Party"
+date: December 7, 2020
+output: 
+  beamer_presentation:
+    theme: "Pittsburgh"
+    colortheme: "crane"
+    fonttheme: "structurebold"
+    slide_level: 2
+fontsize: 9pt    
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+ces19 <- readRDS("ces19.rds")
+```
+---
+
+## Introduction
+
+The questions we chose to cover in our final project provide insight to the Liberal Party about their current standing in voter opinions. For this, we use past data and manipulate it to make predictions.  The findings of this project will contain information about the gender split among the past votes in favor of Liberal Party as well as if Liberal Party is the first choice of voters.   For the research questions entailed in this presentation, we are using the data from the 2019 Online Canadian Election survey.  We have treated the data we have of 25850 (after removing missing values) as a sample and the population is all the people politically participating in voting; all Canadians over the age of 18.
+
+### Data Summary
+
+Each of our research questions involve different variables from the Election Survey results. To familiarize the audience with them, their descriptions are attached as follows:
+- $votechoice$: Which party is your first choice to vote for?
+- $gender$: Which gender does the voter belong to? (e.g. man, woman or other)
+- $bornin\_canada$: Were you born in Canada?
+
+The methods for data wrangling that we will be using are filtering, grouping and mutating variables.
+
+---
+
+## Research Question 1
+
+### Introduction
+
+**What percentage of votes should the Liberal party expect from people born in Canada during the election at this point in time?**
+
+The problem explored in this question is the proportion of people who would vote for the "Liberal Party" as their first choice as opposed to the other parties collectively. I have used our sample to try and predict a confidence interval for the Liberal party so that they know what percentage of vote they should be expecting. 
+
+
+### Statistical Methods
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+##Tidy the data
+ces19_1 <- ces19 %>% mutate(votechoice_L=case_when(votechoice=="Liberal Party" ~ "Liberal", votechoice=="Conservative Party" | votechoice== "ndp" | votechoice== "People's Party" |votechoice=="Green Party"| votechoice== "Bloc Quebecois"| votechoice== "(Other)"~ "Other"))
+
+ces19_1 <- ces19_1 %>% filter(!is.na(votechoice_L))
+
+ces19_canada <- ces19_1 %>% filter(bornin_canada=="Yes")
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+##Create a summary table and calculate the proportions using the sample data
+
+Liberal_votes <- ces19_canada %>% group_by(votechoice_L) %>% summarize(n=n())
+prop_Liberal= 7439/22146
+prop_other= 14707/22146
+
+Liberal_votes_prop <- tibble(proportions=c("Liberal", "Other"),
+                            n=c(prop_Liberal, prop_other))
+```
+
+The statistical method we will use to approach our question is bootstrapping. Bootstrapping is a method used to estimate the sampling distribution of the population of eligible voters in Canada. We draw many bootstrap samples of the same size (n = 22146) from the sample that we have (in this case 1000 bootstrap samples) with replacement which allows our bootstrap sample to have duplicate values. 
+Next, for each bootstrap sample, we filtered the data by vote choice of Liberal and by people born in canada. We are not creating new data, rather we are exploring variability from the original sample to create a range of plausible values for the difference in proportions of votes. 
+
+This is a confidence interval, we found it by taking the middle 95% of the bootstrap distribution and it tells us that if we repeated this procedure many times, 95% of those times, the proportion of people who would vote for the Liberal Party would fall within the 95% confidence interval.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+set.seed(533)
+##Use the r output above to create a tibble and conduct bootstrap sampling 
+Voterchoice_L <- c( rep("liberal", 7439), rep("other", 14707) )
+votedata <- tibble(Voterchoice_L)
+
+set.seed(007)
+boot_p <- rep(NA, 1000)
+
+for (i in 1:1000)
+{
+  boot_samp <- votedata %>% sample_n(size = 22146, replace=TRUE)
+  boot_p[i] <- as.numeric(boot_samp %>% 
+                            filter(Voterchoice_L == "liberal") %>% 
+                            summarize(n()))/22146
+}                
+boot_p <- tibble(boot_p)
+
+```
+---
+
+### Visualization
+
+We will visualize the proportion of people who would vote for the liberal party as their first choice by creating a histogram which will allow us to observe the shape and distribution of the proportions.This distribution shows that the values range from around 0.295 to 0.310, and the center is around 0.3025. Some extremities can be observed but this provides an overview of the number of people who would vote for the liberal party. 
+```{r, echo=FALSE, message=FALSE, warning= FALSE, fig.height=4}
+ggplot(boot_p, aes(x=boot_p)) + geom_histogram(binwidth=0.0005, fill="brown2", color="brown3") + 
+  labs(x="Proportions of liberal party votes", y= "Number of people born in Canada",
+    title="Bootstrap distribution of proportion of people 
+    who would vote for the liberal party") + theme_minimal()
+```
+
+### 95% confidence level
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+quantile(boot_p$boot_p, c(0.025, 0.975))
+
+```
+---
+
+### Results
+If we repeated this process many times, 95% of those confidence intervals would include the true proportion of people born in Canada who would vote for the Liberal party.
+It is always good to know where you stand and identify what needs to be improved, therefore this data is useful for the liberal party. This provides a good starting point when deciding the approach to this election in that the results of this data provides a reason for the liberal party to modify their policies so that they can appeal to immigrants and greater demographics so that they could increase the proportions of people who would vote for the liberal party as their first choice. 
+
+### Conclusion
+Moreover, since this is a proportion in comparison to all the parties collectively, this data tells the Liberal party that they have an unspoken lead in the election because approximately 30% is a large percentage and therefore they should strengthen their weak policies and further strengthen their stronger policies and consider different strategies to market themselves more to the general voting population. 
+
+---
+
+## Research Question 2
+
+### Introduction
+
+**Is the proportion of male people who voted for the Liberal Party 50%?**
+
+This research question can help determine the gender split among the votes, and whether a certain gender preferred the Liberal Party.
+
+Our population for this specific research question would be the people that filled out the survey, voted for the Liberal Party and are within the ages of 18 and 99 inclusive.
+
+---
+
+### Visualization
+
+The data, for all the eligible votes whose first choice vote is for the Liberal Party, is seen on the Bar plot below and is divided by gender. 
+
+```{r echo=FALSE, results='hide', message=FALSE, fig.height=3, fig.width=7}
+ces19 <- ces19 %>% filter(!is.na(votechoice))
+liberalvotes <- ces19 %>% filter(votechoice == "Liberal Party", gender == "A man" | gender == "A woman")
+
+liberalvotes %>% ggplot(aes(x= gender)) +
+  geom_bar(color = "brown3", fill = "brown2") +
+  labs(x= "Gender of Voters", y= "Liberal Party Votes", title = "Spread of Liberal Party votes according to Gender") + theme_minimal() 
+```
+
+From this data we can already conclude that more women had Liberal Party as their first choice for their vote, compared to men.
+
+---
+
+### Visualization (contd.)
+This bar plot was created in steps. First the data was filtered by removing missing (or NA) values and then a new data set called 'liberalvotes'  was created which stores all the data for the individuals that had listed the Liberal Party as their first choice of vote.
+The reason a bar plot was chosen is because the variable gender has 2 different categorical levels which makes this plot the most suitable. Furthermore, bar plots are more easily interpreted by those who lack statistical knowledge.
+
+
+### Statistical Methods
+
+I can test our original research question by carrying out a one-sample hypothesis test.
+Our hypotheses for the test are listed as follows with $H_0$ being the null hypothesis and $H_1$ being the alternative hypothesis, with *p* being the proportion of men.
+$$H_0: p_{male}=0.5$$
+$$H_1: p_{male} \neq 0.5$$
+
+---
+
+### Hypothesis Test Stimulation
+
+```{r echo=FALSE, results='hide', message=FALSE, fig.height=3, fig.width=7}
+male_liberal <- liberalvotes %>% filter(gender == "A man")
+
+set.seed(229)
+n=500
+simulated_sample <- sample(c("A man","A woman"),size=n,prob=c(0.5, 0.5), replace=TRUE)
+
+sum(simulated_sample=="A male")
+mean(simulated_sample=="A male")
+
+repetitions <- 1000
+simulated_stats <- rep(NA, repetitions) 
+
+
+n_observations <- 8898
+for (i in 1:repetitions)
+{
+  new_sim <- sample(c("A man", "A woman"), size=n_observations, prob=c(0.5, 0.5), replace=TRUE)
+  sim_p <- sum(new_sim == "A man") / n_observations
+  simulated_stats[i] <- sim_p
+}
+
+sim <- tibble(p_male = simulated_stats)
+test_stat <- 3776/n_observations
+ggplot(sim, aes(p_male)) + 
+  geom_histogram(bins= 35, color = "cyan4", fill = "cyan3")+
+  geom_vline(xintercept=test_stat, color="red") + 
+  geom_vline(xintercept=1/2-(test_stat-1/2), color="navyblue") +
+  labs(x= "Proportion of males that voted for the liberal party in a sample of 500 (p_male = 1/2)", title= "Simulation distribution of males that voted for the Liberal Party") + theme_minimal()
+
+```
+
+---
+
+### Results
+```{r echo=FALSE, message=FALSE}
+quantile(sim$p_male,
+         c(0.025,0.975))
+```
+
+Above is the result from a 95% confidence interval (it is used to calculate how confident we are with our data). The results from this calculation state that "We are 95% confident that between 49% and 51.1% of people that voted for the Liberal party are male". A narrow confidence interval means that there is less variability in our data and may explain why there is a large gap between our vertical lines and histogram.
+
+```{r echo=FALSE, message=FALSE}
+pvalue <- sim %>% 
+  filter(p_male <= test_stat | p_male <= 1/2 - abs(test_stat - 1/2)) %>%
+  summarize(pvalue = n() / repetitions)
+as.numeric(pvalue)
+```
+
+Our histogram visualization is symmetrical, centered at 0.5 (mean proportion) and values range between 0.49 and 0.52.
+We use our test statistic and original proportion to find our p-value (the probability of obtaining test results in the least  extreme scenario, under the null hypothesis). In this case, the p-value is 0.
+
+### Conclusion
+Since our p-value 0, we have very strong evidence against the null hypothesis that the prevalence of males among  those whose first choice vote was the Liberal Party, is 0.5.
+
+---
+
+## Research Question 3
+### Introduction
+
+**What is the range of plausible values of the difference in median age of Canadians who would vote for the Liberal party verses the National Democratic Party as their first choice?**
+
+We will determine whether a Canadian who would vote for the Liberal Party, is on average younger or older than a Canadian who would vote for the National Democratic Party. This is an important question to answer, to determine if voters of the two parties belong to a similar age demographic.
+
+### Data Summary
+To explore this question, we shall look at Canadians 18 years or older, that is who are eligible to vote in the election and who report that they will vote for the Liberal Party or the National Democratic Party as their first choice, and we will filter our data to only contain this subset of observations. 
+
+```{r,  echo=FALSE, message=FALSE, warning=FALSE}
+# Tidy the data to the sample I am focusing on 
+liberal_NDP_ces19 <- ces19 %>% 
+  filter(!is.na(votechoice)) %>% 
+  filter(votechoice == 'Liberal Party' | votechoice == 'ndp') %>% 
+  mutate(votechoice = case_when(votechoice == 'Liberal Party' ~ 'Liberal Party', 
+                                votechoice == 'ndp' ~ 'National Democratic Party'))
+```
+
+---
+
+### Visualization
+```{r,  echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.width=5.5}
+
+ggplot(data = liberal_NDP_ces19, aes(x=votechoice, y=age, fill=votechoice)) + 
+  geom_boxplot(color="brown3", fill="brown2") + theme_minimal()+ 
+  labs(x = "First Vote Choice", 
+       y = "Age", 
+       title = "Age of Liberal Party and New Democratic Party Voters")
+  
+```
+
+
+We will visualize the age of Liberal and the NDP voters by creating two box plots, which will give us a way to compare the center and distribution of ages for the two groups. The center, that is the median, which is the middle values is seen by the position of the line in the center of the boxes. We can see that median age of NDP voters is much lower than the median of Liberal voters. The distribution of NDP voters is very skewed to the right (that is there is a longer right tail), meaning that most voters tend to be younger. The distribution of Liberal voters is also slightly right skewed, but not as much as the other group. 
+Finally, we see there are a few outliers in the NPD voter ages, where some voters are a bit older than the rest in the group. 
+
+---
+
+### Statistical Method
+
+The statistical method we will be using to answer our question is bootstrapping. Bootstrapping is a method used to estimate the sampling distribution of the population of eligible voters in Canada. We draw many bootstrap samples of the same size (n = 200) from the sample that we have (in this case 5000 bootstrap samples) with replacement. Meaning that our bootstrap samples may have duplicate values in them. Next, for each bootstrap sample, we filtered the data by vote choice, calculated the median age and found the difference between the median age of Liberal voters and the median age of NDP voters.
+
+Doing this, we are not creating new data, rather we are exploring variability from the original sample to create a range of plausible values for the difference in median age. This is a confidence interval, we found it by taking the middle 80% of the bootstrap distribution (wider and narrower intervals could have been taken). This confidence interval tells us that if we repeated this procedure many times, 80% of those times, the true difference in median age would fall inside the confidence interval.
+
+```{r,  echo=FALSE, message=FALSE, warning=FALSE}
+set.seed(109)
+
+# Bootstrap sampling
+
+boot_differences <- rep(NA, 1000)
+
+for(i in 1:1000){
+  boot_samp <- liberal_NDP_ces19 %>% sample_n(size = 200, replace=TRUE)
+  
+    lib_age <- boot_samp %>% 
+      filter(votechoice == 'Liberal Party') %>% 
+      summarise(median_age_lib = median(age))
+    
+    ndp_age <- boot_samp %>% 
+      filter(votechoice == 'National Democratic Party') %>% 
+      summarise(median_age_ndp = median(age))
+    
+  boot_differences[i] <- as.numeric(lib_age - ndp_age)
+}
+
+boot_differences <- tibble(diff_medians = boot_differences)
+```
+
+```{r,  echo=FALSE, message=FALSE, warning=FALSE}
+# 80% confidence interval
+
+quantile(boot_differences$diff_medians, probs = c(0.10, 0.90))
+```
+---
+
+### Results 
+The confidence interval we found through our bootstrap sampling for the difference in median age for Liberal and NDP voters in between 6 and 16. Since the interval is positive, and recall that we subtracted the median age of Liberal voters from the median age of NDP voters, we can conclude that on average, NDP voters tend to be younger than Liberal voters. 
+
+### Conclusions
+Since this is the case, the Liberal Party should be focusing their campaigning efforts and new party policies towards a younger demographic of Canadians, as this is something that the National Demographic Party is succeeding in. The NDP is able to attract a younger voter base through the fresh ideas they propose and the Liberal Party should be taking a page out of their book. 
+Finally, some limitations in answering this question using the bootstrapping method is that the sample data that we begin with may be biased and not fully representative of all Canadian voters and since bootstrapping only reuses our sample data, the interval we came up with may be biased. 
+
+---
+
+## Limitations and Summary
+
+### Limitations
+
+Some limitations to this data include the sample data may not be completely representative of the population due to bias. In addition to this, since samples are randomly drawn, this can lead to some uncertainty.
+Another limitation that cannot be removed is that some of the results might be biased due to confounding in variables.
+
+### Summary
+
+The findings contained in this project serve to advise the Liberal Party on how their campaign can be improved by targeting the right audiences. They are as follows:
+
+- The Liberal Party only has 30% of the population sure about voting for them and they need to improve their campaign generally.
+- In general, the proportion of men to women in Liberal voters is not 50%. The Liberal Party needs to target their policies towards men. 
+- They also need to target the upcoming new voters more, maybe by easier student loans or similar policies to earn the favor of this age group.
+
