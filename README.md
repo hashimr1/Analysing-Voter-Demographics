@@ -80,6 +80,6 @@ Visulizations of the data created using R include bar graphs, histograms and box
 - Maryam Ansari
 - Suchi Aidasani
 
- Group 132 in STA130
+[STA130 - An Introduction to Statistical Reasoning and Data Science](https://artsci.calendar.utoronto.ca/course/sta130h1)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
