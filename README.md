@@ -56,7 +56,7 @@ The data set used in this analysis is from the 2019 Online Canadian Election Sur
 - [ ] One-sample Hypothesis Test
     - [ ] tested the null hypothesis against the alternative hypothesis to see how unlikely it is that the result occoured by chance
 - [ ] Confidence Intervals
-    - [ ] created several 95% confidence intervals to determine a range of values that would contain value 90% of the time
+    - [ ] created several 95% confidence intervals to determine a range of values that would contain value 95% of the time
 
 For more information, see [Voter Demographics.pdf](https://github.com/hashimr1/Analysing-Voter-Demographics/blob/main/Voter%20Demographics.pdf)
 
